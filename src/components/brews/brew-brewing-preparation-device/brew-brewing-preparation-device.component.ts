@@ -151,7 +151,6 @@ export class BrewBrewingPreparationDeviceComponent
     | Move2Device = undefined;
 
   public activeConnectingDevice: PreparationDevice = undefined;
-  private gaggimateStatusListenerId: string = undefined;
 
   public preparation: Preparation = undefined;
   public settings: Settings = undefined;
@@ -535,10 +534,6 @@ export class BrewBrewingPreparationDeviceComponent
       } else if (device instanceof SanremoYOUDevice) {
         device.disconnectSocket();
       } else if (device instanceof GaggimateDevice) {
-        if (this.gaggimateStatusListenerId) {
-          device.offStatusUpdate(this.gaggimateStatusListenerId);
-          this.gaggimateStatusListenerId = undefined;
-        }
         device.disconnectSocket();
       }
     }
@@ -1011,13 +1006,6 @@ export class BrewBrewingPreparationDeviceComponent
           // Opening a brew only reads from the GaggiMate. The machine is switched to brew
           // mode not before a profile is chosen or the shot is started from the app.
           await this.preparationDevice.loadProfiles();
-          // Keep the shown target temperature / weight up to date
-          this.gaggimateStatusListenerId =
-            this.preparationDevice.onStatusUpdate(() => {
-              if (this.data.preparationDeviceBrew.params.chosenProfileId) {
-                this.checkChanges();
-              }
-            });
           /**Check if this profile is still existing, if yes, preset, if not cancel**/
           const profileFound = this.preparationDevice
             .getProfiles()
